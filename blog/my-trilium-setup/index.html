@@ -1,0 +1,88 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="My notes have lived in Trilium for years. Over the last few weeks they became something Claude works in too: it reads them before it answers, files what we figure out, and turns the articles I save into a wiki. This …"><title>My Trilium setup: notes Claude can read, write and remember · Marcel Bruckner</title><!-- The theme follows the system unless the visitor chose one (Header's switch). Set before
+         the first paint, so the page never flashes in the other theme. --><script>
+      try {
+        const t = localStorage.getItem("theme");
+        if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+      } catch {}
+    </script><meta name="color-scheme" content="light dark"><!-- The browser bar takes the page colour; Header's switch rewrites both when the visitor picks a theme. --><meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#0b0d12" media="(prefers-color-scheme: dark)"><script>
+      try {
+        const t = localStorage.getItem("theme");
+        if (t === "light" || t === "dark")
+          for (const m of document.querySelectorAll('meta[name="theme-color"]')) m.content = t === "dark" ? "#0b0d12" : "#ffffff";
+      } catch {}
+    </script><link rel="icon" href="/favicon.ico" sizes="32x32"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://marcelbruckner.de/blog/my-trilium-setup/"><link rel="alternate" type="application/rss+xml" title="Marcel Bruckner · Blog" href="/blog/rss.xml"><meta property="og:type" content="article"><meta property="og:locale" content="en_US"><meta property="og:site_name" content="Marcel Bruckner"><meta property="og:url" content="https://marcelbruckner.de/blog/my-trilium-setup/"><meta property="og:title" content="My Trilium setup: notes Claude can read, write and remember · Marcel Bruckner"><meta property="og:description" content="My notes have lived in Trilium for years. Over the last few weeks they became something Claude works in too: it reads them before it answers, files what we figure out, and turns the articles I save into a wiki. This …"><meta property="og:image" content="https://marcelbruckner.de/og-en.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Marcel Bruckner: computer scientist, software quality consultant, maker, engineer, self-hoster, blogger. With a photo and his products: notefeed, Gamepanion, freundebuch, noticebox, passageway, Gesetze für KI, Spanwire, Traureise and gassi."><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="My Trilium setup: notes Claude can read, write and remember · Marcel Bruckner"><meta name="twitter:description" content="My notes have lived in Trilium for years. Over the last few weeks they became something Claude works in too: it reads them before it answers, files what we figure out, and turns the articles I save into a wiki. This …"><meta name="twitter:image" content="https://marcelbruckner.de/og-en.png"><meta name="twitter:image:alt" content="Marcel Bruckner: computer scientist, software quality consultant, maker, engineer, self-hoster, blogger. With a photo and his products: notefeed, Gamepanion, freundebuch, noticebox, passageway, Gesetze für KI, Spanwire, Traureise and gassi."><link rel="stylesheet" href="/_astro/Footer.BeyNqVFj.css"></head><body class="min-h-screen flex flex-col"><header class="wide" id="top"><div class="topbar"><span class="place">Kempten, Allgäu</span><div class="right"><a class="lang" href="/blog" hreflang="de" lang="de">Deutsch</a><div class="theme" role="group" aria-label="Colour theme"><button type="button" data-set="auto" aria-pressed="false">Auto</button><button type="button" data-set="light" aria-pressed="false">Light</button><button type="button" data-set="dark" aria-pressed="false">Dark</button></div></div></div><div class="masthead"><a class="name" href="/en/">Marcel Bruckner</a><nav class="main" aria-label="Main"><a href="/en/software">Software</a><a href="/en/cloud">Cloud</a><a href="https://3dbruckner.de">3D Printing</a><a href="/en/blog" aria-current="page">Blog</a><a href="/en/resume">Résumé</a><a href="/en/contact">Contact</a></nav></div></header><script type="module">var e=document.documentElement,t=document.querySelectorAll(`.theme button`),n=()=>{let n=e.dataset.theme??`auto`;for(let e of t)e.setAttribute(`aria-pressed`,String(e.dataset.set===n))};for(let r of t)r.addEventListener(`click`,()=>{let t=r.dataset.set;t===`auto`?delete e.dataset.theme:e.dataset.theme=t,document.querySelectorAll(`meta[name="theme-color"]`).forEach(e=>{e.content=(t===`auto`?e.media.includes(`dark`):t===`dark`)?`#0b0d12`:`#ffffff`});try{t===`auto`?localStorage.removeItem(`theme`):localStorage.setItem(`theme`,t)}catch{}n()});n();</script><main class="flex-1"><article><header class="post-head"><p class="kicker"><time datetime="2026-10-27T12:26:35.450Z">27 October 2026</time><span>trilium · claude</span></p><h1>My Trilium setup: notes Claude can read, write and remember</h1></header><div class="post"><p>My notes have lived in <a href="https://triliumnotes.org">Trilium</a> for years. Over the last few weeks they became something Claude works in too: it reads them before it answers, files what we figure out, and turns the articles I save into a wiki. This post is the map: which pieces there are, how they fit together, and where each one has its own post.</p>
+<pre><code class="language-mermaid">flowchart LR
+  me["Me: browser, phone"] -- "save + tag" --&gt; kk["Karakeep"]
+  kk -- "tagged bookmarks" --&gt; sync["karakeep-trilium-sync"]
+  claude["Claude: Code, claude.ai, apps"] -- "MCP, OAuth login" --&gt; proxy["trilium-mcp-proxy"]
+  claude -- "recall" --&gt; recall["trilium-recall"]
+  subgraph T["Trilium"]
+    mcp["built-in MCP server"]
+    src["Sources"]
+    wiki["Wiki"]
+  end
+  proxy --&gt; mcp
+  recall -. "reads" .-&gt; T
+  sync --&gt; src
+  mcp -- "ingest" --&gt; wiki
+</code></pre>
+<h3 id="the-pieces">The pieces</h3>
+<table>
+<thead>
+<tr>
+<th>Piece</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Trilium</strong> 0.106+</td>
+<td>The notes. Since 0.106 it has its own MCP server, so any MCP client can search, read and write them.</td>
+</tr>
+<tr>
+<td><strong><a href="https://trilium-mcp-proxy.marceltov.de/">trilium-mcp-proxy</a></strong></td>
+<td>Puts an OAuth login in front of that server: add one URL to claude.ai or Claude Code and log in with your Trilium password, no token to paste.</td>
+</tr>
+<tr>
+<td><strong><a href="https://trilium-recall.marceltov.de/">trilium-recall</a></strong></td>
+<td>A search index next to Trilium (keywords plus embeddings, German and English) that hands Claude what the notes already know, before it starts guessing.</td>
+</tr>
+<tr>
+<td><strong><a href="https://trilium-llm-wiki.marceltov.de/">trilium-llm-wiki</a></strong></td>
+<td>A Claude Code plugin that builds and maintains an LLM wiki inside Trilium, following Karpathy’s pattern.</td>
+</tr>
+<tr>
+<td><strong><a href="https://trilium-plugin.marceltov.de/">trilium-plugin</a></strong></td>
+<td>Claude Code skills for everyday notes: search, create, move, tag, templates, journal, export.</td>
+</tr>
+<tr>
+<td><strong><a href="https://karakeep-trilium-sync.marceltov.de/">karakeep-trilium-sync</a></strong></td>
+<td>Copies bookmarks I tag <code>trilium</code> in <a href="https://karakeep.app/">Karakeep</a> into the wiki’s <em>Sources</em> every 15 minutes.</td>
+</tr>
+</tbody>
+</table>
+<p>All of them are open source (AGPL-3.0-or-later) and run as small containers next to Trilium, or as plugins in Claude Code.</p>
+<h3 id="how-knowledge-gets-in">How knowledge gets in</h3>
+<ol>
+<li><strong>Collect.</strong> I save an article to Karakeep and tag it <code>trilium</code>. Reddit posts I save get the tag automatically.</li>
+<li><strong>Sync.</strong> A few minutes later it is a read-only source note in Trilium.</li>
+<li><strong>Ingest.</strong> I tell Claude “ingest”. It reads the source, writes a summary, updates the concept and entity pages it touches and logs the change in the day note. The rules for all of that live in a schema note in Trilium, so I change the wiki’s conventions by editing a note.</li>
+<li><strong>Adopt.</strong> At the end of a work session Claude offers to file what we found: a decision, a fix, how a system actually behaves. Most of my wiki comes from this, not from articles.</li>
+<li><strong>Review.</strong> Everything Claude writes is a draft marked AI-assisted until I set it to reviewed.</li>
+</ol>
+<h3 id="how-it-gets-back-out">How it gets back out</h3>
+<p>Connecting Claude to Trilium isn’t enough: a model rarely stops to ask “do my notes know something about this?”. trilium-recall closes that gap. In Claude Code a prompt hook checks every prompt against the index and adds up to three short passages when the notes have something, and nothing when they don’t. On claude.ai the same engine is an MCP server whose instructions tell Claude when to look. In practice this is what makes the rest worth it: I speak a rough request (“the server from yesterday”, “like we did for the other repo”) and Claude starts from what I already wrote down.</p>
+<h3 id="what-changed-this-week">What changed this week</h3>
+<ul>
+<li><strong>Trilium’s own MCP server replaced mine.</strong> My ETAPI-based <a href="https://github.com/Marceltov/trilium-mcp">trilium-mcp</a> is archived; the plugins now use the built-in tools, and trilium-mcp-proxy only adds the login.</li>
+<li><strong>trilium-recall became its own project</strong>, because it indexes all of Trilium, not only the wiki. Since 0.6.0 adding its URL to a client is the whole setup.</li>
+<li><strong>Release notes land here.</strong> Every release of these projects now posts its notes to this feed automatically.</li>
+</ul>
+<h3 id="where-to-read-more">Where to read more</h3>
+<ul>
+<li><a href="https://notefeed.me/r/trilium/pPC25okFxqeY4n8kDzO3Tg">trilium-recall: Claude remembers what you wrote in Trilium</a></li>
+<li><a href="https://notefeed.me/r/trilium/yF3oV-gRPjM3c6xGU7pHoA">An LLM wiki in Trilium</a></li>
+<li><a href="https://notefeed.me/r/trilium/LBu8yKKFJlUpSk7q8mnTzA">trilium-mcp-proxy: log in to Trilium’s MCP server with your password</a></li>
+</ul>
+<p>Follow along with the <a href="https://notefeed.me/r/trilium/feed.xml">RSS feed</a>.</p>
+</div></article><p class="post-license">The text and my own pictures in this post are licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="license noopener noreferrer">CC BY 4.0 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right icon" aria-hidden="true"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg></a>. Pictures and quotes by others are not. Attribution: Marcel Bruckner, with a link to this post.</p><p class="post-foot"><a href="/en/blog"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left icon" aria-hidden="true"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg> All posts</a><span>This post also lives on <a href="https://notefeed.me/r/marcelbruckner/jHfDI9UjYZUdXZnNHCHKhA" target="_blank" rel="noopener noreferrer">notefeed <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right icon" aria-hidden="true"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg></a></span></p></main><footer class="site wide"><div class="l"><span>© 2026 Marcel Bruckner</span><a href="mailto:kontakt@marcelbruckner.de">kontakt@marcelbruckner.de</a></div><div class="r"><a href="/impressum">Imprint (DE)</a><a href="/datenschutz">Privacy (DE)</a><a href="#top">To the top <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up icon" aria-hidden="true"><path d="m5 12 7-7 7 7"></path><path d="M12 19V5"></path></svg></a></div></footer></body></html><script type="module" src="/_astro/_slug_.astro_astro_type_script_index_0_lang.CHE6ymnv.js"></script>

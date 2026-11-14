@@ -1,0 +1,92 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Today closed out a project that has been running for weeks: turning a pile of per-server repos into one repo for the whole homelab, and then deciding, once and for all, where each kind of documentation lives."><title>One repo, one home per fact: finishing the homelab consolidation · Marcel Bruckner</title><!-- The theme follows the system unless the visitor chose one (Header's switch). Set before
+         the first paint, so the page never flashes in the other theme. --><script>
+      try {
+        const t = localStorage.getItem("theme");
+        if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+      } catch {}
+    </script><meta name="color-scheme" content="light dark"><!-- The browser bar takes the page colour; Header's switch rewrites both when the visitor picks a theme. --><meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#0b0d12" media="(prefers-color-scheme: dark)"><script>
+      try {
+        const t = localStorage.getItem("theme");
+        if (t === "light" || t === "dark")
+          for (const m of document.querySelectorAll('meta[name="theme-color"]')) m.content = t === "dark" ? "#0b0d12" : "#ffffff";
+      } catch {}
+    </script><link rel="icon" href="/favicon.ico" sizes="32x32"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://marcelbruckner.de/blog/one-repo-one-home-per-fact/"><link rel="alternate" type="application/rss+xml" title="Marcel Bruckner · Blog" href="/blog/rss.xml"><meta property="og:type" content="article"><meta property="og:locale" content="en_US"><meta property="og:site_name" content="Marcel Bruckner"><meta property="og:url" content="https://marcelbruckner.de/blog/one-repo-one-home-per-fact/"><meta property="og:title" content="One repo, one home per fact: finishing the homelab consolidation · Marcel Bruckner"><meta property="og:description" content="Today closed out a project that has been running for weeks: turning a pile of per-server repos into one repo for the whole homelab, and then deciding, once and for all, where each kind of documentation lives."><meta property="og:image" content="https://marcelbruckner.de/og-en.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Marcel Bruckner: computer scientist, software quality consultant, maker, engineer, self-hoster, blogger. With a photo and his products: notefeed, Gamepanion, freundebuch, noticebox, passageway, Gesetze für KI, Spanwire, Traureise and gassi."><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="One repo, one home per fact: finishing the homelab consolidation · Marcel Bruckner"><meta name="twitter:description" content="Today closed out a project that has been running for weeks: turning a pile of per-server repos into one repo for the whole homelab, and then deciding, once and for all, where each kind of documentation lives."><meta name="twitter:image" content="https://marcelbruckner.de/og-en.png"><meta name="twitter:image:alt" content="Marcel Bruckner: computer scientist, software quality consultant, maker, engineer, self-hoster, blogger. With a photo and his products: notefeed, Gamepanion, freundebuch, noticebox, passageway, Gesetze für KI, Spanwire, Traureise and gassi."><link rel="stylesheet" href="/_astro/Footer.BeyNqVFj.css"></head><body class="min-h-screen flex flex-col"><header class="wide" id="top"><div class="topbar"><span class="place">Kempten, Allgäu</span><div class="right"><a class="lang" href="/blog" hreflang="de" lang="de">Deutsch</a><div class="theme" role="group" aria-label="Colour theme"><button type="button" data-set="auto" aria-pressed="false">Auto</button><button type="button" data-set="light" aria-pressed="false">Light</button><button type="button" data-set="dark" aria-pressed="false">Dark</button></div></div></div><div class="masthead"><a class="name" href="/en/">Marcel Bruckner</a><nav class="main" aria-label="Main"><a href="/en/software">Software</a><a href="/en/cloud">Cloud</a><a href="https://3dbruckner.de">3D Printing</a><a href="/en/blog" aria-current="page">Blog</a><a href="/en/resume">Résumé</a><a href="/en/contact">Contact</a></nav></div></header><script type="module">var e=document.documentElement,t=document.querySelectorAll(`.theme button`),n=()=>{let n=e.dataset.theme??`auto`;for(let e of t)e.setAttribute(`aria-pressed`,String(e.dataset.set===n))};for(let r of t)r.addEventListener(`click`,()=>{let t=r.dataset.set;t===`auto`?delete e.dataset.theme:e.dataset.theme=t,document.querySelectorAll(`meta[name="theme-color"]`).forEach(e=>{e.content=(t===`auto`?e.media.includes(`dark`):t===`dark`)?`#0b0d12`:`#ffffff`});try{t===`auto`?localStorage.removeItem(`theme`):localStorage.setItem(`theme`,t)}catch{}n()});n();</script><main class="flex-1"><article><header class="post-head"><p class="kicker"><time datetime="2026-11-12T13:19:14.249Z">12 November 2026</time><span>homelab</span></p><h1>One repo, one home per fact: finishing the homelab consolidation</h1></header><div class="post"><p>Today closed out a project that has been running for weeks: turning a pile of per-server repos into <strong>one repo for the whole homelab</strong>, and then deciding, once and for all, where each kind of documentation lives.</p>
+<h2 id="from-five-repos-to-one">From five repos to one</h2>
+<p>The homelab used to be spread over <code>main-server</code>, <code>main-pbs</code>, <code>secondary-pbs-pi</code>, <code>proxmox</code> and <code>design</code>. One by one they were folded in: both Proxmox hosts, the local Backup Server and the offsite Raspberry Pi backup box are now configured by Ansible from the same inventory. Today the last one went:</p>
+<ul>
+<li><strong><code>design</code></strong>, the shared PlantUML style for the architecture diagrams, stopped being a submodule. Its only other user had already been merged in, so it was pulled in with <code>git subtree add</code> (history kept) and the old repo archived. A fresh clone now renders diagrams without a submodule step, and a style change and its re-rendered SVGs are one commit.</li>
+<li><strong>The repo was renamed <code>main-server</code> → <code>homelab</code>.</strong> It had long stopped being about one server. GitHub renamed it in place, so issues, PR numbers and the 150 ADRs kept their numbers. Every URL in tracked files was rewritten; prose in old ADRs was left as written, because that is history. Nothing that runs depended on the checkout path — every unit, timer and backup hook is installed under <code>/usr/local/lib/homelab/</code> — and that was checked on every host before the move.</li>
+</ul>
+<p>That closes the central-repo programme.</p>
+<h2 id="one-fact-one-home">One fact, one home</h2>
+<p>The bigger change was about documentation. The same machines were described in three places — the arc42 architecture doc, a Trilium wiki and Homelable — and they disagreed. Reading the live hosts against them found the architecture doc wrong about swap and kernels on both hypervisors, about how Frigate detects, how Jellyfin runs and which apps one guest hosts, and the wiki putting an app on the wrong guest.</p>
+<p>The rule now:</p>
+<table>
+<thead>
+<tr>
+<th>Knowledge</th>
+<th>Lives in</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Everything about one machine, runbooks</td>
+<td>Homelable</td>
+</tr>
+<tr>
+<td>IP, MAC, CPU, RAM, disk</td>
+<td>Proxmox (shown in Homelable, never retyped)</td>
+</tr>
+<tr>
+<td>Config, resources, firewall, backup jobs</td>
+<td>Ansible in the repo</td>
+</tr>
+<tr>
+<td>Why something was decided</td>
+<td>an ADR</td>
+</tr>
+<tr>
+<td>What went wrong</td>
+<td>a post-mortem</td>
+</tr>
+<tr>
+<td>Architecture across machines</td>
+<td><code>arc42.md</code></td>
+</tr>
+<tr>
+<td>General lessons and reading notes</td>
+<td>Trilium</td>
+</tr>
+</tbody>
+</table>
+<p>Everything else links. ADRs and post-mortems stay in git on purpose: they merge in the same PR as the change they record.</p>
+<h2 id="what-homelable-is">What Homelable is</h2>
+<p><a href="https://github.com/Pouzor/homelable">Homelable</a> is a self-hosted, open-source app for documenting a homelab. It does three things that a wiki doesn’t:</p>
+<ul>
+<li><strong>It knows the devices.</strong> It imports machines from Proxmox and from its own network scan, so IP, MAC, CPU, RAM and disk come from the source rather than being typed in. A document is attached to a device, and Homelable marks it as <em>drifted</em> when the device’s facts change after the doc was written.</li>
+<li><strong>It draws them.</strong> Canvases are diagrams built from the same inventory: boxes are real devices, and a box can hold the containers running inside it.</li>
+<li><strong>It talks to Claude.</strong> It ships an MCP server, so a Claude session can search and read the docs, and write device docs, canvases and runbooks, the same way it reads a repo.</li>
+</ul>
+<p>That last point is what tipped the decision: the docs are read by the same sessions that change the system, so they are worth keeping current.</p>
+<h2 id="how-it-is-set-up-here">How it is set up here</h2>
+<p>Homelable runs on its own small LXC container (CT 105, 2 GB RAM) on the main Proxmox host, deployed like every other guest: a git repo with one Docker Compose project and a <code>deploy.sh</code>, its secrets pulled from 1Password.</p>
+<ul>
+<li><strong>Three containers</strong>, from the upstream images: the web frontend (nginx), the backend (FastAPI, which also scans the network, hence the <code>NET_RAW</code> capability), and the MCP server.</li>
+<li><strong>All state is one SQLite file</strong> in a Docker volume: inventory, canvases and every document. The guest is in the nightly Proxmox backup, so that file goes through the full chain: local Backup Server, then the Raspberry Pi, then offsite. Its backup has been restored in a drill.</li>
+<li><strong>Access goes through the existing ingress.</strong> Caddy on the network guest publishes it on its own subdomain. Browser sign-in is OIDC against authentik, so it uses the same single sign-on as the rest of the homelab; the authentik provider is a blueprint in git. The MCP endpoint is reached through the same Caddy, with an API key instead of a login. One gotcha there: the MCP server answers <code>/mcp</code> with a redirect to <code>/mcp/</code>, and clients drop the API key on the redirect, so Caddy rewrites the path first.</li>
+<li><strong>A copy in git, for now by hand.</strong> A <em>Sync</em> button writes every document to a private GitHub repo, so the docs survive the host they describe. It has no schedule yet, which is why the restore runbooks still live in the architecture doc in the repo.</li>
+<li><strong>Monitored like everything else</strong>: the five fleet sidecars (logs, metrics, uptime monitor, image updates, dashboard discovery) run next to it.</li>
+</ul>
+<p>The honest weak spot: <strong>Homelable runs on the host it documents.</strong> If that box is down, the docs about bringing it back are in the git copy and the architecture doc, not in the app.</p>
+<h2 id="what-was-built-in-homelable">What was built in Homelable</h2>
+<ul>
+<li><strong>26 device docs</strong>, one per machine, all in the same shape: purpose, <em>why it is this way</em> (each line linking its ADR), what runs here, what is special, where its operations differ, troubleshooting backed only by real incidents, dependencies, changelog.</li>
+<li><strong>14 runbooks</strong> moved over from the wiki and corrected where they had gone stale.</li>
+<li>A <strong>Services</strong> canvas: every guest with its running containers, checked one-to-one against <code>docker ps</code>, grouped into seven zones by function. Grouping by host was tried first and read as a pile, since 20 of 22 guests sit on one box.</li>
+<li>A <strong>Backups</strong> canvas: 22 guests, which job backs each up and when, three tiers of storage — and, just as visibly, the eight guests that are deliberately not backed up.</li>
+<li>The old hand-drawn network canvas was deleted; everything on it was already somewhere else.</li>
+</ul>
+<p>On the Trilium side, 17 homelab pages were deleted once their content was confirmed in Homelable, and the rest trimmed down to the general lessons.</p>
+<h2 id="the-lesson">The lesson</h2>
+<p>Three copies of the truth don’t give you three times the safety — they give you three chances to be wrong, and no way to tell which one is. One home per fact, links everywhere else.</p>
+</div></article><p class="post-license">The text and my own pictures in this post are licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="license noopener noreferrer">CC BY 4.0 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right icon" aria-hidden="true"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg></a>. Pictures and quotes by others are not. Attribution: Marcel Bruckner, with a link to this post.</p><p class="post-foot"><a href="/en/blog"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left icon" aria-hidden="true"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg> All posts</a><span>This post also lives on <a href="https://notefeed.me/r/homelab/CPIHEtmYBhkAQ_3p17bDLQ" target="_blank" rel="noopener noreferrer">notefeed <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right icon" aria-hidden="true"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg></a></span></p></main><footer class="site wide"><div class="l"><span>© 2026 Marcel Bruckner</span><a href="mailto:kontakt@marcelbruckner.de">kontakt@marcelbruckner.de</a></div><div class="r"><a href="/impressum">Imprint (DE)</a><a href="/datenschutz">Privacy (DE)</a><a href="#top">To the top <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up icon" aria-hidden="true"><path d="m5 12 7-7 7 7"></path><path d="M12 19V5"></path></svg></a></div></footer></body></html><script type="module" src="/_astro/_slug_.astro_astro_type_script_index_0_lang.CHE6ymnv.js"></script>

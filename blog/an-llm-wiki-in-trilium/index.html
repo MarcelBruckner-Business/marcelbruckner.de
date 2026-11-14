@@ -1,0 +1,84 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Andrej Karpathy described an &quot;LLM wiki&quot;: you collect sources, and an LLM turns them into a wiki of linked pages, answers questions from it and keeps it tidy. People are good at choosing what to read and bad at the …"><title>An LLM wiki in Trilium: Claude builds and maintains a linked knowledge base · Marcel Bruckner</title><!-- The theme follows the system unless the visitor chose one (Header's switch). Set before
+         the first paint, so the page never flashes in the other theme. --><script>
+      try {
+        const t = localStorage.getItem("theme");
+        if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+      } catch {}
+    </script><meta name="color-scheme" content="light dark"><!-- The browser bar takes the page colour; Header's switch rewrites both when the visitor picks a theme. --><meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#0b0d12" media="(prefers-color-scheme: dark)"><script>
+      try {
+        const t = localStorage.getItem("theme");
+        if (t === "light" || t === "dark")
+          for (const m of document.querySelectorAll('meta[name="theme-color"]')) m.content = t === "dark" ? "#0b0d12" : "#ffffff";
+      } catch {}
+    </script><link rel="icon" href="/favicon.ico" sizes="32x32"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://marcelbruckner.de/blog/an-llm-wiki-in-trilium/"><link rel="alternate" type="application/rss+xml" title="Marcel Bruckner · Blog" href="/blog/rss.xml"><meta property="og:type" content="article"><meta property="og:locale" content="en_US"><meta property="og:site_name" content="Marcel Bruckner"><meta property="og:url" content="https://marcelbruckner.de/blog/an-llm-wiki-in-trilium/"><meta property="og:title" content="An LLM wiki in Trilium: Claude builds and maintains a linked knowledge base · Marcel Bruckner"><meta property="og:description" content="Andrej Karpathy described an &quot;LLM wiki&quot;: you collect sources, and an LLM turns them into a wiki of linked pages, answers questions from it and keeps it tidy. People are good at choosing what to read and bad at the …"><meta property="og:image" content="https://marcelbruckner.de/og-en.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Marcel Bruckner: computer scientist, software quality consultant, maker, engineer, self-hoster, blogger. With a photo and his products: notefeed, Gamepanion, freundebuch, noticebox, passageway, Gesetze für KI, Spanwire, Traureise and gassi."><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="An LLM wiki in Trilium: Claude builds and maintains a linked knowledge base · Marcel Bruckner"><meta name="twitter:description" content="Andrej Karpathy described an &quot;LLM wiki&quot;: you collect sources, and an LLM turns them into a wiki of linked pages, answers questions from it and keeps it tidy. People are good at choosing what to read and bad at the …"><meta name="twitter:image" content="https://marcelbruckner.de/og-en.png"><meta name="twitter:image:alt" content="Marcel Bruckner: computer scientist, software quality consultant, maker, engineer, self-hoster, blogger. With a photo and his products: notefeed, Gamepanion, freundebuch, noticebox, passageway, Gesetze für KI, Spanwire, Traureise and gassi."><link rel="stylesheet" href="/_astro/Footer.BeyNqVFj.css"></head><body class="min-h-screen flex flex-col"><header class="wide" id="top"><div class="topbar"><span class="place">Kempten, Allgäu</span><div class="right"><a class="lang" href="/blog" hreflang="de" lang="de">Deutsch</a><div class="theme" role="group" aria-label="Colour theme"><button type="button" data-set="auto" aria-pressed="false">Auto</button><button type="button" data-set="light" aria-pressed="false">Light</button><button type="button" data-set="dark" aria-pressed="false">Dark</button></div></div></div><div class="masthead"><a class="name" href="/en/">Marcel Bruckner</a><nav class="main" aria-label="Main"><a href="/en/software">Software</a><a href="/en/cloud">Cloud</a><a href="https://3dbruckner.de">3D Printing</a><a href="/en/blog" aria-current="page">Blog</a><a href="/en/resume">Résumé</a><a href="/en/contact">Contact</a></nav></div></header><script type="module">var e=document.documentElement,t=document.querySelectorAll(`.theme button`),n=()=>{let n=e.dataset.theme??`auto`;for(let e of t)e.setAttribute(`aria-pressed`,String(e.dataset.set===n))};for(let r of t)r.addEventListener(`click`,()=>{let t=r.dataset.set;t===`auto`?delete e.dataset.theme:e.dataset.theme=t,document.querySelectorAll(`meta[name="theme-color"]`).forEach(e=>{e.content=(t===`auto`?e.media.includes(`dark`):t===`dark`)?`#0b0d12`:`#ffffff`});try{t===`auto`?localStorage.removeItem(`theme`):localStorage.setItem(`theme`,t)}catch{}n()});n();</script><main class="flex-1"><article><header class="post-head"><p class="kicker"><time datetime="2026-10-26T17:43:38.275Z">26 October 2026</time><span>trilium · claude</span></p><h1>An LLM wiki in Trilium: Claude builds and maintains a linked knowledge base</h1></header><div class="post"><p>Andrej Karpathy described an “<a href="https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f">LLM wiki</a>”: you collect sources, and an LLM turns them into a wiki of linked pages, answers questions from it and keeps it tidy. People are good at choosing what to read and bad at the upkeep a wiki needs: cross-references, updating ten pages when one new source arrives, noticing contradictions. In this pattern, that upkeep becomes the assistant’s job.</p>
+<p>Most setups build this on Obsidian and plain Markdown files. Trilium already has the pieces they build by hand, so I built mine on Trilium:</p>
+<p><strong><a href="https://trilium-llm-wiki.marceltov.de/">trilium-llm-wiki</a></strong> is a Claude Code plugin that builds and maintains an LLM wiki in your Trilium, using Trilium’s built-in MCP server.</p>
+<p><img src="https://trilium-llm-wiki.marceltov.de/assets/graph.png" alt="The wiki’s graph in Trilium: hub pages (violet) such as Homelab, Trilium and Hetzner, each surrounded by its concept (green), entity (orange) and summary (blue) pages"></p>
+<p><em>My wiki after a few weeks, as Trilium’s note map: hubs in violet, concepts green, entities orange, source summaries blue.</em></p>
+<h3 id="why-trilium-fits-so-well">Why Trilium fits so well</h3>
+<table>
+<thead>
+<tr>
+<th>The pattern needs</th>
+<th>Trilium has</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>metadata on every page</td>
+<td>labels and promoted attributes, set by templates</td>
+</tr>
+<tr>
+<td>a graph of linked pages</td>
+<td>internal links and relations, and the <strong>note map</strong> to look at it</td>
+</tr>
+<tr>
+<td>pages of a few kinds</td>
+<td>templates (hub, concept, entity, source summary)</td>
+</tr>
+<tr>
+<td>“what still needs work?”</td>
+<td>saved searches: pending sources, stubs, drafts, orphans</td>
+</tr>
+<tr>
+<td>a log of what changed</td>
+<td>the journal’s day note</td>
+</tr>
+<tr>
+<td>raw sources that stay untouched</td>
+<td>a <code>#readOnly</code> <em>Sources</em> subtree</td>
+</tr>
+</tbody>
+</table>
+<h3 id="how-it-works">How it works</h3>
+<ul>
+<li><strong>One request sets it up</strong>: a <em>Schema</em> note, read-only <em>Sources</em>, the <em>Wiki</em>, four templates, saved-search views, two note maps and a lock folder.</li>
+<li><strong>The rules live in your Trilium</strong>: the schema note says how pages are written, linked and reviewed. Claude reads it before every write, and you change the wiki’s conventions by editing that note.</li>
+<li><strong>Workflows</strong>:
+<ul>
+<li><em>ingest</em> a source: Claude writes a summary, updates the concept and entity pages it touches, creates placeholder pages for new topics, and logs the change in the day note;</li>
+<li><em>query</em> the wiki;</li>
+<li><em>lint</em> it;</li>
+<li><em>adopt</em> a finding from a work session.</li>
+</ul>
+</li>
+<li><strong>You stay the editor</strong>: Claude writes drafts marked AI-assisted, and only you set a page to reviewed.</li>
+<li><strong>Safe with several sessions</strong>: a small write lock (a queue of claim notes) stops two Claude sessions from overwriting each other’s changes.</li>
+</ul>
+<h3 id="what-goes-in">What goes in</h3>
+<ul>
+<li><strong>Articles and links.</strong> I save them to <a href="https://karakeep.app/">Karakeep</a>. A small sync job I wrote, <a href="https://karakeep-trilium-sync.marceltov.de/">karakeep-trilium-sync</a>, puts them under <em>Sources</em>, and “ingest” does the rest.</li>
+<li><strong>My own chats with Claude.</strong> At the end of a session I just say “put this in the wiki”. Claude summarizes what we figured out or decided and files it into the pages it belongs to, so a fix, a decision or a “this is how it actually behaves” doesn’t get lost when the chat ends.</li>
+</ul>
+<h3 id="finding-things-again">Finding things again</h3>
+<p>A wiki is only useful if the assistant actually looks things up. That’s what <a href="https://trilium-recall.marceltov.de/">trilium-recall</a> is for (<a href="https://marcelbruckner.de/blog/trilium-recall/">my post about it</a>): it gives Claude the relevant wiki pages before it answers, and the wiki’s structure helps it rank them, with wiki pages first and sources shown as their summaries. It works on any Trilium, so it has its own post.</p>
+<h3 id="try-it">Try it</h3>
+<p>You need Trilium 0.106+ with the MCP server switched on (<em>Options → AI / LLM → MCP server</em>). Connect it with an ETAPI token or through <a href="https://trilium-mcp-proxy.marceltov.de/">trilium-mcp-proxy</a> (see <a href="https://github.com/orgs/TriliumNext/discussions/12310">discussion #12310</a>).</p>
+<pre class="astro-code astro-code-themes github-light github-dark-dimmed" style="background-color:#fff;--shiki-dark-bg:#22272e;color:#24292e;--shiki-dark:#adbac7; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>/plugin marketplace add Marceltov/trilium-llm-wiki</span></span>
+<span class="line"><span>/plugin install trilium-llm-wiki</span></span></code></pre>
+<p>Then ask Claude to “set up the LLM wiki”, drop an article under <em>Sources</em> and say “ingest”.</p>
+<p>For everyday note work without a wiki (search, create, move, tag, journal, export) there’s <a href="https://trilium-plugin.marceltov.de/">trilium-plugin</a>; both plugins share one connection.</p>
+<p>Feedback is welcome, especially from anyone who runs something similar: how do you structure yours?</p>
+<hr>
+<p><em>Discussion on GitHub: <a href="https://github.com/orgs/TriliumNext/discussions/12317">TriliumNext discussion #12317</a>.</em></p>
+</div></article><p class="post-license">The text and my own pictures in this post are licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="license noopener noreferrer">CC BY 4.0 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right icon" aria-hidden="true"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg></a>. Pictures and quotes by others are not. Attribution: Marcel Bruckner, with a link to this post.</p><p class="post-foot"><a href="/en/blog"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left icon" aria-hidden="true"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg> All posts</a><span>This post also lives on <a href="https://notefeed.me/r/marcelbruckner/_KPqsa-d7kQh3WCX-WqOwQ" target="_blank" rel="noopener noreferrer">notefeed <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right icon" aria-hidden="true"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg></a></span></p></main><footer class="site wide"><div class="l"><span>© 2026 Marcel Bruckner</span><a href="mailto:kontakt@marcelbruckner.de">kontakt@marcelbruckner.de</a></div><div class="r"><a href="/impressum">Imprint (DE)</a><a href="/datenschutz">Privacy (DE)</a><a href="#top">To the top <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up icon" aria-hidden="true"><path d="m5 12 7-7 7 7"></path><path d="M12 19V5"></path></svg></a></div></footer></body></html><script type="module" src="/_astro/_slug_.astro_astro_type_script_index_0_lang.CHE6ymnv.js"></script>
